@@ -102,6 +102,11 @@ class EvalDataset(Dataset):
         intrinsic = np.matmul(trans_mat, intrinsic)
         im_512 = cv2.resize(im, (512, 512))
         im = cv2.resize(im, (self.load_size, self.load_size))
+        
+        # check if image bit depth is higher than 8 bits
+        if im.dtype != np.uint8:
+            im_512 = (im_512 / 256).astype('uint8')
+            im = (im / 256).astype('uint8')
 
         image_512 = Image.fromarray(im_512[:,:,::-1]).convert('RGB')
         image = Image.fromarray(im[:,:,::-1]).convert('RGB')
