@@ -57,6 +57,16 @@ def gen_mesh(res, net, cuda, data, save_path, thresh=0.5, use_octree=True, compo
         save_img = np.concatenate(save_img_list, axis=1)
         cv2.imwrite(save_img_path, save_img)
 
+        # todo: store heightmap independently
+        front_heightmap_path = save_path[:-4] + '_front.png'
+        front_heightmap = (np.transpose(image_tensor_global[1].detach().cpu().numpy(), (1, 2, 0)) * 0.5 + 0.5)[:, :, ::-1] * 255.0
+        cv2.imwrite(front_heightmap_path, front_heightmap)
+
+        original_path = save_path[:-4] + '_original.png'
+        original_image = (np.transpose(image_tensor_global[0].detach().cpu().numpy(), (1, 2, 0)) * 0.5 + 0.5)[:, :,
+                          ::-1] * 255.0
+        cv2.imwrite(original_path, original_image)
+
         verts, faces, _, _ = reconstruction(
             net, cuda, calib_tensor, res, b_min, b_max, thresh, use_octree=use_octree, num_samples=50000)
         verts_tensor = torch.from_numpy(verts.T).unsqueeze(0).to(device=cuda).float()
